@@ -1,0 +1,48 @@
+{% extends "_base.html" %}
+{% block head %}
+    <style>
+        @media screen and (max-width: 600px) {
+            form {
+                display: flex;
+                flex-direction: column;
+            }
+
+            form input {
+                margin-bottom: 1em;
+                margin-top: 0.2em;
+            }
+
+            input[type=submit] {
+                height: 3em;
+            }
+        }
+
+        @media screen and (min-width: 601px) {
+            form {
+                margin-left: 2em;
+                display: grid;
+                grid-template-columns: auto 1fr;
+                grid-column-gap: 1em;
+                max-width: 50em;
+            }
+
+            label {
+                margin: auto 0 auto auto;
+            }
+
+            input[type=submit] {
+                grid-column: 2;
+            }
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <p>Zadejte prosím údaje, kterými se přihlašujete do Bakalářů:</p>
+    <form method="POST">
+        {{ form.csrf_token }}
+        {{ form.url.label }} {{ form.url }}
+        {{ form.username.label }} {{ form.username }}
+        {{ form.password.label }} {{ form.password }}
+        <input type="submit" value="Přihlásit se"/>
+    </form>
+{% endblock %}

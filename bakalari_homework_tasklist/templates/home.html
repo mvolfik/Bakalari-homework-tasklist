@@ -1,1 +1,65 @@
 {% extends "_base.html" %}
+{% block head %}
+    <style>
+        img.align {
+            height: 2.5em;
+            vertical-align: middle;
+            margin-bottom: 0.2em;
+            margin-right: 0.5em;
+        }
+
+        main {
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            font-size: 1.5em;
+        }
+
+        p#subtitle {
+            font-size: 1.2em;
+            font-style: italic;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <h1>Vítejte ve webové aplikaci Bakaláři&#x2011;homework&#x2011;tasklist!</h1>
+    <p id="subtitle">
+        Zadávají vám učitelé domácí úkoly přes Bakaláře a je to pro vás nepřehledné a
+        chtěli byste si sami spravovat, které úkoly jsou hotové, a které ještě pár dní
+        počkají?
+        <br/>
+        <span style="color: #4BB543;">Ano, nejste sami.</span>
+    </p>
+    <p>
+        Tato aplikace vám zobrazí všechny úkoly z Bakalářů a umožní
+        vám si je třídit do několika skupin (hotové, odložené&hellip;)
+    </p>
+    <h2>Jak to funguje?</h2>
+    <p>
+        Do aplikace zadáte adresu vašich bakalářů, uživatelské jméno a heslo.
+        Heslo není nikde uloženo, jen je použito k vygenerování přístupového tokenu.
+        Tento token je pak použit pro stáhnutí všech úkolů z Bakalářů. Samotné třídění
+        úkolů pak probíhá a je uloženo pouze v této aplikaci.
+    </p>
+    <h2>Vývoj aplikace</h2>
+    <p>
+        Tuto aplikaci jsem vytvořil v březnu 2020 během přerušení výuky na školách
+        kvůli šíření virového onemocnění COVID-19, způsobeného virem SARS-CoV-2
+        (&ldquo;wuchanský koronavirus&rdquo;).
+    </p>
+    <p>
+        Pokud mi chcete nahlásit chybu, navrhnout vylepšení nebo mě
+        kontaktovat z jiného důvodu, přejděte na stránku
+        <a href="{{ url_for("core.contact") }}">Kontakt</a>.
+    </p>
+    <p>
+        <img src="{{ url_for("static", filename="GitHub-Mark.png") }}"
+             class="align"
+             alt="GitHub logo"/>
+        Zdrojové kódy jsou k dispozici na
+        <a href="https://github.com/mvolfik/Bakalari-homework-tasklist" target="_blank">GitHubu</a>.
+    </p>
+{% endblock %}

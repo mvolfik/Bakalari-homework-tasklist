@@ -1,0 +1,28 @@
+{% extends "_base.html" %}
+{% block head %}
+    <style>
+        textarea#text {
+            vertical-align: baseline;
+            max-width: 500px;
+            width: 100%;
+            height: 250px;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <h1>Kontakt</h1>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <p>{{ form.email.label }}: {{ form.email }}</p>
+        <p>{{ form.is_error }} {{ form.is_error.label }}</p>
+        <div>{{ form.text.label }}: {{ form.text }}</div>
+        <input type="submit" value="Odeslat"/>
+    </form>
+    <p>
+        Nevyhovuje kontaktní formulář? Použijte e-mail
+        (<a href="mailto:mat.volfik@gmail.com" target="_blank">mat.volfik@gmail.com</a>)
+        nebo
+        <a href="https://github.com/mvolfik/Bakalari-homework-tasklist/issues"
+           target="_blank">GitHub Issues</a>
+    </p>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "_base.html" %}
+{% block body %}
+    <h1>404 Not Found</h1>
+    <p>
+        Tato stránka neexistuje. Myslíte si, že by tu měla být? Poskytněte, prosím,
+        více informací na stránce
+        <a href="{{ url_for("core.contact") }}?error=yes">kontakt</a>.
+    </p>
+{% endblock %}

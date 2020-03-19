@@ -4,46 +4,73 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Bakaláři homework tasklist{% endblock %}</title>
-    {% block head %}
-        <style>
-            body {
+    <style>
+        body {
+            margin: 0;
+        }
+
+        main {
+            margin: 0.5em 2em;
+        }
+
+        {% if navigation_bar %}
+            ul#nav {
+                list-style-type: none;
                 margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #333;
             }
 
-            main {
-                margin: 0.2em 0.5em;
+            ul#nav li {
+                float: left;
             }
 
-            {% if navigation_bar %}
-                ul#nav {
-                    list-style-type: none;
-                    margin: 0;
-                    padding: 0;
-                    overflow: hidden;
-                    background-color: #333;
-                }
+            ul#nav li a {
+                display: block;
+                color: white;
+                text-align: center;
+                padding: 14px 16px;
+                text-decoration: none;
+            }
 
-                ul#nav li {
-                    float: left;
-                }
+            ul#nav li a:hover:not(.active) {
+                background-color: #111;
+            }
 
-                ul#nav li a {
-                    display: block;
-                    color: white;
-                    text-align: center;
-                    padding: 14px 16px;
-                    text-decoration: none;
-                }
+            ul#nav li a.active {
+                background-color: #4CAF50;
+            }
+            div.flash-group {
+                min-width: 30%;
+                width: max-content;
+                margin: 1em;
+                padding: 0.1em 1.5em 0.1em 0.5em;
+                border-radius: 0.3em 0.5em 3em 1em;
+            }
+            p#footer {
+                border-top: 1px solid #bbbbbb;
+                color: #888888;
+                text-align: center;
+                margin-top: 5em;
+                padding-top: 1em;
+            }
+            p#footer a {
+                color: #6666aa;
+                text-decoration: #666666 dotted underline;
+            }
+        {% endif %}
 
-                ul#nav li a:hover:not(.active) {
-                    background-color: #111;
-                }
-
-                ul#nav li a.active {
-                    background-color: #4CAF50;
-                }
-            {% endif %}
-        </style>
+        {% if current_user.is_authenticated %}
+            div#current-user {
+                float: right;
+                padding: 1em;
+                background-color: #ddd;
+                border-bottom-left-radius: 5px;
+            }
+        {% endif %}
+    </style>
+    {% block head %}
     {% endblock %}
 </head>
 <body>
@@ -58,10 +85,18 @@
                 {% endif %}>{{ caption }}</a></li>
     {% endfor %}
 </ul>
+
+{% if current_user.is_authenticated %}
+    <div id="current-user">
+        Přihlášen uživatel <i>{{ current_user.name }}
+        ({{ current_user.account_type }})</i>
+    </div>
+{% endif %}
+
 {% with d = get_grouped_flashes() %}
     {% if d %}
         {% for group in d %}
-            <div style="min-width:30%;width:max-content;margin:1em;padding:0.1em 1.5em 0.1em 0.5em;border-radius:0.3em 0.5em 3em 1em;background-color:{{ group }};">
+            <div class="flash-group" style="background-color:{{ group }};">
                 {% for message in d[group] %}
                     <p>{{ message | safe }}</p>
                 {% endfor %}
@@ -69,10 +104,15 @@
         {% endfor %}
     {% endif %}
 {% endwith %}
+
 <main>
     {% block body %}
     {% endblock %}
 </main>
+<p id="footer">
+    Bakaláři-homework-tasklist | Copyright &copy; 2020
+    <a href="https://github.com/mvolfik" target="_blank">Matěj Volf</a>
+</p>
 {% block end %}
 {% endblock %}
 </body>

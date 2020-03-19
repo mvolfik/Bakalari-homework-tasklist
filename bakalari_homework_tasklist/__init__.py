@@ -1,33 +1,21 @@
 import locale
 import os
-from collections import defaultdict
 
-from flask import Flask, get_flashed_messages, render_template
+from flask import Flask, before_render_template, render_template
 
 
 def create_app(config=None, *, keep_default=True, **kwargs):
     locale.setlocale(locale.LC_ALL, "cs_CZ.utf8")
     app = Flask(__name__)
 
-    @app.template_global()
-    def get_grouped_flashes():
-        """Returns a dictionary with group names as keys and lists of messages as values"""
-        msgs = get_flashed_messages(with_categories=True)
-        groups = defaultdict(list)
-        for group, msg in msgs:
-            groups[group].append(msg)
-        return groups
+    # --- template helpers
+    from .utils import create_navbar, get_grouped_flashes
+
+    app.add_template_global(get_grouped_flashes)
+    before_render_template.connect(create_navbar, app)
 
     # --- config
-    app.config.from_mapping(
-        FLASH_COLORS={
-            "ERROR_RED": "#F99",
-            "CONFIRMATION_GREEN": "#4BB543",
-            "INFO_YELLOW": "#FCF712",
-            "WARNING_ORANGE": "#FF6700",
-        },
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    )
+    app.config.from_mapping(SQLALCHEMY_TRACK_MODIFICATIONS=False)
     if keep_default:
         app.config.from_mapping(
             SQLALCHEMY_DATABASE_URI=os.environ["DATABASE_URL"],
@@ -44,12 +32,29 @@ def create_app(config=None, *, keep_default=True, **kwargs):
 
     db.init_app(app)
 
-    # --- homepage
-    navigation_bar = (("home", "Úvodní stránka", None),)
-    app.add_template_global(navigation_bar, "navigation_bar")
+    from .auth import bp, login_manager
 
+    app.register_blueprint(bp)
+    login_manager.init_app(app)
+
+    from .core import bp
+
+    app.register_blueprint(bp)
+
+    # --- home route
     @app.route("/")
     def home():
         return render_template("home.html")
+
+    # --- 500 error handler
+    @app.errorhandler(500)
+    def error500(_):
+        return render_template("error500.html", active_endpoint=""), 500
+
+    @app.errorhandler(404)
+    def error404(_):
+        return render_template("error404.html", active_endpoint=""), 404
+
+    from . import sentry  # just import, it does everything by itself
 
     return app

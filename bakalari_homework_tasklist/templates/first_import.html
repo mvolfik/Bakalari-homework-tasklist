@@ -1,0 +1,13 @@
+{% extends "_base.html" %}
+{% block body %}
+    <p>
+        Vítejte! Nyní aplikace naimportuje vaše úkoly ze systému Bakalářů. Pravděpodobně
+        ale nechcete třídit všechny staré úkoly. Pro dokončení registrace v této
+        aplikaci tedy prosím vyberte, od jakého data označit úkoly jako nehotové.
+    </p>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <p>{{ form.date.label }}: {{ form.date }}</p>
+        <input type="submit" value="Importovat"/>
+    </form>
+{% endblock %}

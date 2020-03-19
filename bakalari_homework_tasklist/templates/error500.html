@@ -1,0 +1,9 @@
+{% extends "_base.html" %}
+{% block body %}
+    <h1>500 Internal Server Error</h1>
+    <p>
+        Něco se nepovedlo. Chyba byla nahlášena. Pokud chcete poskytnout více informací
+        o tom, jak jste postupovali před vznikem chyby, přejděte, prosím, na stránku
+        <a href="{{ url_for("core.contact") }}?error=yes">kontakt</a>.
+    </p>
+{% endblock %}
