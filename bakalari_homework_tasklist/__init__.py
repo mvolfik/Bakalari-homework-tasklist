@@ -19,7 +19,7 @@ def create_app(config=None, *, keep_default=True, **kwargs):
     if keep_default:
         app.config.from_mapping(
             SQLALCHEMY_DATABASE_URI=os.environ["DATABASE_URL"],
-            SQLALCHEMY_ECHO=True,
+            SQLALCHEMY_ECHO=False,
             SECRET_KEY=os.environ["SECRET_KEY"],
         )
     if config is not None:

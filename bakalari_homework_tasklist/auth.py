@@ -98,7 +98,9 @@ def login():
 
             else:
                 # --- check if new user
-                ifuser = User.query.get({"url": url, "username": f.username.data})
+                ifuser = User.query.filter_by(
+                    username=f.username.data, url=url
+                ).one_or_none()
                 if ifuser is None:
                     session["username"] = f.username.data
                     session["name"] = root.find("jmeno").text
