@@ -35,20 +35,16 @@ def get_grouped_flashes():
 
 
 def create_navbar(sender, template, context, **extra):
-    context["navigation_bar"] = [
-        ("home", "Úvod", ""),
-    ]
     if current_user.is_authenticated:
-        context["navigation_bar"].extend(
-            (
-                ("core.list_homeworks", "Domácí úkoly", ""),
-                ("auth.logout", "Odhlásit se", "style='float: right'"),
-            )
+        context["navigation_bar"] = (
+            ("home", "Úvod", ""),
+            ("core.list_homeworks", "Domácí úkoly", ""),
+            ("core.contact", "Kontakt", ""),
+            ("auth.logout", "Odhlásit se", "style='float:right'"),
         )
     else:
-        context["navigation_bar"].append(
-            ("auth.login", "Přihlásit se", "style='float: right'")
+        context["navigation_bar"] = (
+            ("home", "Úvod", ""),
+            ("core.contact", "Kontakt", ""),
+            ("auth.login", "Přihlásit se", "style='float:right'"),
         )
-    context["navigation_bar"].append(  # appended now because of order
-        ("core.contact", "Kontakt", "style='float: right'")
-    )

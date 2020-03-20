@@ -1,6 +1,8 @@
+from enum import Enum
+
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
 
 db = SQLAlchemy()
 
@@ -21,6 +23,13 @@ class User(db.Model, UserMixin):
     )
 
 
+class HomeworkState(Enum):
+    TODO = 1
+    DONE = 2
+    POSTPONED = 3
+    OTHER = 4
+
+
 class Homework(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # just for this app
     baka_id = db.Column(db.String, nullable=False)
@@ -29,6 +38,8 @@ class Homework(db.Model):
     # but mainly b) Two users from same class will have the same homework (actually,
     #               I don't know if they have same IDs in the system...), but we want to
     #               keep their status separately
+    # however, we store it to know if we already have this homework in this user's list
+    # of homework
 
     assigned = db.Column(db.DateTime, nullable=False)
     due = db.Column(db.DateTime, nullable=False)
@@ -38,9 +49,18 @@ class Homework(db.Model):
     user_id = db.Column(db.Integer, ForeignKey(User.id), nullable=False)
     user = db.relationship(User, backref="homeworks")
 
+    state = db.Column(
+        db.Enum(HomeworkState), default=HomeworkState.TODO, nullable=False
+    )
+    postponed_until = db.Column(db.Date)
+
+    __table_args__ = (
+        CheckConstraint("(state = 'POSTPONED') = (postponed_until IS NOT NULL)"),
+    )
+
 
 class Attachment(db.Model):
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     # see note for Homework, though we don't need baka_id here, we just use it when
     # storing to create dl_link
 

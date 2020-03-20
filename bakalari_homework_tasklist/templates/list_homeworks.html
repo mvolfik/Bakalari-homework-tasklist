@@ -1,4 +1,77 @@
 {% extends "_base.html" %}
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/js/dist/tab.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css">
+    <style>
+        p.reload-notice {
+            background-color: #ffffbb;
+            font-style: italic;
+            border-radius: 10px;
+            padding: 1em;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
 {% block body %}
-    <p>Pracuje se...</p>
+    <p>
+        <a href="{{ url_for("core.fetch_new") }}">Importovat nové úkoly z Bakalářů</a>
+    </p>
+    {% if reloader %}
+        <p class="reload-notice">Vaše úkoly se aktualizují z Bakalářů, prosím, obnovte
+            stránku za několik
+            vteřin.</p>
+    {% endif %}
+    <!-- Tab controls -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo"
+               role="tab" aria-controls="todo" aria-selected="true">Nevyřízené</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="postponed-tab" data-toggle="tab" href="#postponed"
+               role="tab" aria-controls="postponed" aria-selected="false">Odložené</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="done-tab" data-toggle="tab" href="#done"
+               role="tab" aria-controls="done" aria-selected="false">Hotové</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="other-tab" data-toggle="tab" href="#other"
+               role="tab" aria-controls="other" aria-selected="false">Ostatní</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane active" id="todo" role="tabpanel"
+             aria-labelledby="todo-tab">
+            {% for hw in hwgroups["TODO"] %}
+                {{ hw.description | safe }}
+            {% endfor %}
+        </div>
+        <div class="tab-pane" id="postponed" role="tabpanel"
+             aria-labelledby="postponed-tab">
+            {% for hw in hwgroups["POSTPONED"] %}
+                {{ hw.description | safe }}
+            {% endfor %}
+        </div>
+        <div class="tab-pane" id="done" role="tabpanel"
+             aria-labelledby="done-tab">
+            {% for hw in hwgroups["DONE"] %}
+                {{ hw.description | safe }}
+            {% endfor %}
+        </div>
+        <div class="tab-pane" id="other" role="tabpanel"
+             aria-labelledby="other-tab">
+            {% for hw in hwgroups["OTHER"] %}
+                {{ hw.description | safe }}
+            {% endfor %}
+        </div>
+    </div>
+    {% for hw in homeworks %}
+        {{ hw.description | safe }}
+    {% endfor %}
 {% endblock %}

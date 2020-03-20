@@ -1,9 +1,17 @@
-from datetime import date
+from datetime import date, datetime, time
 from urllib.error import URLError
 from xml.etree import ElementTree
 
 from bakalari_token import InvalidResponse, InvalidUsername, generate_token, process_url
-from flask import Blueprint, flash, redirect, render_template, session, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    session,
+    url_for,
+)
 from flask_login import (
     LoginManager,
     current_user,
@@ -84,7 +92,6 @@ def login():
         else:
             # --- validate token --> password
             req = get(url, params={"hx": token, "pm": "login"}, verify=False)
-            print(req.content.decode())
             root = ElementTree.fromstring(req.content.decode())
             result = root.find("result").text
             if result == "-1":
@@ -166,8 +173,18 @@ def first_import():
         db.session.add(u)
         db.session.commit()
         login_user(u, remember=True, duration=until_midnight())
+
+        job = current_app.task_queue.enqueue(
+            "bakalari_homework_tasklist.worker_tasks.first_update",
+            u.id,
+            datetime.combine(f.date.data, time.min),
+        )
+        if "running_jobs" not in session:
+            session["running_jobs"] = []
+        session["running_jobs"].append(job.get_id())
+        session.modified = True
         flash(
-            "Domácí úkoly nebyly naimportovány, tato aplikace ještě není dokončena",
+            "Import úkolů byl zahájen, prosím vyčkejte&hellip;",
             FlashColor.CONFIRMATION_GREEN,
         )
         return redirect(url_for("core.list_homeworks"), 303)

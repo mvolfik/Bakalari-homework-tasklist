@@ -3,8 +3,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for("static", filename="favicon-32x32.png") }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="{{ url_for("static", filename="favicon-16x16.png") }}">
+    <link rel="shortcut icon" href="{{ url_for("static", filename="favicon.ico") }}">
     <title>{% block title %}Bakaláři homework tasklist{% endblock %}</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
         }
@@ -14,19 +23,30 @@
         }
 
         {% if navigation_bar %}
-            ul#nav {
+            div#nav {
+                display: flex;
+                background-color: #333;
+                margin: 0;
+                padding: 0;
+                flex-wrap: wrap;
+            }
+            #nav #logo img {
+                max-height: 4em;
+                margin: 0.5em;
+            }
+            ul#nav-links {
+                flex: 1;
                 list-style-type: none;
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
-                background-color: #333;
             }
 
-            ul#nav li {
+            ul#nav-links li {
                 float: left;
             }
 
-            ul#nav li a {
+            ul#nav-links li a {
                 display: block;
                 color: white;
                 text-align: center;
@@ -34,37 +54,41 @@
                 text-decoration: none;
             }
 
-            ul#nav li a:hover:not(.active) {
+            ul#nav-links li a:hover:not(.active) {
                 background-color: #111;
             }
 
-            ul#nav li a.active {
+            ul#nav-links li a.active {
                 background-color: #4CAF50;
             }
-            div.flash-group {
-                min-width: 30%;
-                width: max-content;
-                margin: 1em;
-                padding: 0.1em 1.5em 0.1em 0.5em;
-                border-radius: 0.3em 0.5em 3em 1em;
-            }
-            p#footer {
-                border-top: 1px solid #bbbbbb;
-                color: #888888;
-                text-align: center;
-                margin-top: 5em;
-                padding-top: 1em;
-            }
-            p#footer a {
-                color: #6666aa;
-                text-decoration: #666666 dotted underline;
-            }
         {% endif %}
+
+        div.flash-group {
+            min-width: 30%;
+            width: max-content;
+            margin: 1em;
+            padding: 0.1em 1.5em 0.1em 0.5em;
+            border-radius: 0.3em 0.5em 3em 1em;
+        }
+
+        p#footer {
+            border-top: 1px solid #bbbbbb;
+            color: #888888;
+            text-align: center;
+            margin-top: 5em;
+            padding-top: 1em;
+        }
+
+        p#footer a {
+            color: #6666aa;
+            text-decoration: #666666 dotted underline;
+        }
 
         {% if current_user.is_authenticated %}
             div#current-user {
                 float: right;
                 padding: 1em;
+                margin: 0 0 1em 1em;
                 background-color: #ddd;
                 border-bottom-left-radius: 5px;
             }
@@ -75,16 +99,22 @@
 </head>
 <body>
 {% set active_endpoint = active_endpoint | default(request.endpoint) %}
-<ul id="nav">
-    {% for endpoint, caption, extras in navigation_bar %}
-        <li {{ extras | safe }}><a
-                {% if endpoint == active_endpoint %}
+<div id="nav">
+    <div id="logo">
+        <img src="{{ url_for("static", filename="logo.svg") }}" alt="logo"/>
+    </div>
+    <ul id="nav-links">
+        {% for endpoint, caption, extras in navigation_bar %}
+            <li>
+                <a {% if endpoint == active_endpoint %}
                     href="#" class="active"
                 {% else %}
                     href="{{ url_for(endpoint) }}"
-                {% endif %}>{{ caption }}</a></li>
-    {% endfor %}
-</ul>
+                {% endif %}>{{ caption }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
 
 {% if current_user.is_authenticated %}
     <div id="current-user">

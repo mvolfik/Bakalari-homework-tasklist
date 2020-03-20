@@ -1,11 +1,21 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
+from sqlalchemy.orm import joinedload
 from wtforms.fields import BooleanField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import Email, InputRequired, Length, Optional
 
-from .db import Message, db
+from .db import Homework, HomeworkState, Message, db
 from .utils import FlashColor, flash_form_errors
 
 bp = Blueprint("core", __name__)
@@ -48,4 +58,40 @@ def contact():
 @bp.route("/list-homeworks")
 @login_required
 def list_homeworks():
-    return render_template("list_homeworks.html")
+    reloader = False
+    if "running_jobs" in session:
+        print(session["running_jobs"])
+        job_ids = session["running_jobs"][:]
+        for i, job_id in enumerate(job_ids):
+            if current_app.task_queue.fetch_job(job_id).is_finished:
+                print("Deleting", job_id)
+                del session["running_jobs"][i]
+            else:
+                reloader = True
+        session.modified = True
+    hws = (
+        Homework.query.filter_by(user_id=current_user.id)
+        .options(joinedload(Homework.attachments))
+        .all()
+    )
+    hwgroups = {state.name: [] for state in HomeworkState}
+    for hw in hws:
+        hwgroups[hw.state.name].append(hw)
+    return render_template("list_homeworks.html", hwgroups=hwgroups, reloader=reloader,)
+
+
+@bp.route("/fetch-new")
+@login_required
+def fetch_new():
+    job = current_app.task_queue.enqueue(
+        "bakalari_homework_tasklist.worker_tasks.fetch_new_homework", current_user.id
+    )
+    if "running_jobs" not in session:
+        session["running_jobs"] = []
+    session["running_jobs"].append(job.get_id())
+    session.modified = True
+    flash(
+        "Import nových úkolů byl zahájen, prosím vyčkejte&hellip;",
+        FlashColor.CONFIRMATION_GREEN,
+    )
+    return redirect(url_for("core.list_homeworks"), 303)

@@ -1,7 +1,9 @@
 import locale
 import os
 
-from flask import Flask, before_render_template, render_template
+import rq
+from flask import Flask, before_render_template, redirect, render_template, url_for
+from redis import Redis
 
 
 def create_app(config=None, *, keep_default=True, **kwargs):
@@ -19,6 +21,7 @@ def create_app(config=None, *, keep_default=True, **kwargs):
     if keep_default:
         app.config.from_mapping(
             SQLALCHEMY_DATABASE_URI=os.environ["DATABASE_URL"],
+            REDIS_URL=os.environ["REDIS_URL"],
             SQLALCHEMY_ECHO=False,
             SECRET_KEY=os.environ["SECRET_KEY"],
         )
@@ -40,11 +43,17 @@ def create_app(config=None, *, keep_default=True, **kwargs):
     from .core import bp
 
     app.register_blueprint(bp)
+    app.redis = Redis.from_url(app.config["REDIS_URL"])
+    app.task_queue = rq.Queue("homework-fetcher", connection=app.redis)
 
     # --- home route
     @app.route("/")
     def home():
         return render_template("home.html")
+
+    @app.route("/favicon.ico")
+    def faviconred():
+        return redirect(url_for("static", filename="favicon.ico"))
 
     # --- 500 error handler
     @app.errorhandler(500)

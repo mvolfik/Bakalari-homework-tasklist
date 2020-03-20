@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b2c137b22d6b94ea522b7da5a85ca9223d553b7be476872b23994c0f435efd67"
+            "sha256": "9f093a9c5e7f62f1251a56e6161131dab83270f68e5780ea5a84ee2f1c21043a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -169,6 +169,13 @@
             "index": "pypi",
             "version": "==2.8.4"
         },
+        "redis": {
+            "hashes": [
+                "sha256:0dcfb335921b88a850d461dc255ff4708294943322bd55de6cfd68972490ca1f",
+                "sha256:b205cffd05ebfd0a468db74f0eedbff8df1a7bfc47521516ade4692991bb0833"
+            ],
+            "version": "==3.4.1"
+        },
         "requests": {
             "hashes": [
                 "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee",
@@ -177,17 +184,25 @@
             "index": "pypi",
             "version": "==2.23.0"
         },
+        "rq": {
+            "hashes": [
+                "sha256:49c9149fa9301f98d918f3042f36bed4252d37193d222a1ce8b0e25886442377",
+                "sha256:c3e65a8ba5e59287308f23679f7fe729b9380531e4f6cdabb2dee99b82834811"
+            ],
+            "index": "pypi",
+            "version": "==1.3.0"
+        },
         "sentry-sdk": {
             "extras": [
                 "flask",
                 "sqlalchemy"
             ],
             "hashes": [
-                "sha256:480eee754e60bcae983787a9a13bc8f155a111aef199afaa4f289d6a76aa622a",
-                "sha256:a920387dc3ee252a66679d0afecd34479fb6fc52c2bc20763793ed69e5b0dcc0"
+                "sha256:23808d571d2461a4ce3784ec12bbee5bdb8c026c143fe79d36cef8a6d653e71f",
+                "sha256:bb90a4e19c7233a580715fc986cc44be2c48fc10b31e71580a2037e1c94b6950"
             ],
             "index": "pypi",
-            "version": "==0.14.2"
+            "version": "==0.14.3"
         },
         "sqlalchemy": {
             "hashes": [

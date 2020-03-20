@@ -1,0 +1,16 @@
+<svg width="200" height="100" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        .text {
+        font: italic 20px sans-serif;
+        }
+    </style>
+    <g>
+        <path d="M23,9 h10 c20,0 20,20 0,20 h-10 m10,0 c30,0 30,30, 0,30 h-10 v-53"
+              fill="none" stroke-width="6" stroke="#dd2222"/>
+        <path d="M10,50 C40,110 20,110 90,10" fill="none" stroke-width="10"
+              stroke="#22dd22" stroke-linecap="round"/>
+    </g>
+    <text x="95" y="35" class="text">Bakaláři</text>
+    <text x="78" y="60" class="text">homework</text>
+    <text x="61" y="85" class="text">tasklist</text>
+</svg>

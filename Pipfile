@@ -15,6 +15,7 @@ flask-wtf = "*"
 flask-login = "*"
 sentry-sdk = {extras = ["flask", "sqlalchemy"],version = "*"}
 psycopg2 = "*"
+rq = "*"
 
 [requires]
 python_version = "3.8"
