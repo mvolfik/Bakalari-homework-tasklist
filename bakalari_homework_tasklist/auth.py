@@ -184,7 +184,7 @@ def first_import():
         session["running_jobs"].append(job.get_id())
         session.modified = True
         flash(
-            "Import úkolů byl zahájen, prosím vyčkejte&hellip;",
+            "Import úkolů byl zahájen, vyčkejte prosím&hellip;",
             FlashColor.CONFIRMATION_GREEN,
         )
         return redirect(url_for("core.list_homeworks"), 303)

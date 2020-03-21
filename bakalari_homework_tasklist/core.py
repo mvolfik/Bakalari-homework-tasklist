@@ -62,10 +62,16 @@ def list_homeworks():
     if "running_jobs" in session:
         print(session["running_jobs"])
         job_ids = session["running_jobs"][:]
-        for i, job_id in enumerate(job_ids):
-            if current_app.task_queue.fetch_job(job_id).is_finished:
-                print("Deleting", job_id)
-                del session["running_jobs"][i]
+        for job_id in job_ids:
+            job = current_app.task_queue.fetch_job(job_id)
+            if job.is_finished:
+                session["running_jobs"].remove(job_id)
+            elif job.is_failed:
+                flash(
+                    "Při importu úkolů z Bakalářů nastala chyba, zkuste to prosím znovu",
+                    FlashColor.INFO_YELLOW,
+                )
+                session["running_jobs"].remove(job_id)
             else:
                 reloader = True
         session.modified = True
@@ -91,7 +97,7 @@ def fetch_new():
     session["running_jobs"].append(job.get_id())
     session.modified = True
     flash(
-        "Import nových úkolů byl zahájen, prosím vyčkejte&hellip;",
+        "Import nových úkolů byl zahájen, vyčkejte prosím&hellip;",
         FlashColor.CONFIRMATION_GREEN,
     )
     return redirect(url_for("core.list_homeworks"), 303)
