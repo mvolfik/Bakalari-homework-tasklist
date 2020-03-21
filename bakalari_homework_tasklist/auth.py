@@ -88,6 +88,11 @@ def login():
                 "Na dané adrese neexistuje server systému Bakaláři",
                 FlashColor.ERROR_RED,
             )
+        except UnicodeEncodeError:
+            flash(
+                "URL nemůže obsahovat diakritiku a další znaky mimo ASCII",
+                FlashColor.ERROR_RED,
+            )
 
         else:
             # --- validate token --> password

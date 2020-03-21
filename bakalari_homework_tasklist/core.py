@@ -60,7 +60,6 @@ def contact():
 def list_homeworks():
     reloader = False
     if "running_jobs" in session:
-        print(session["running_jobs"])
         job_ids = session["running_jobs"][:]
         for job_id in job_ids:
             job = current_app.task_queue.fetch_job(job_id)
