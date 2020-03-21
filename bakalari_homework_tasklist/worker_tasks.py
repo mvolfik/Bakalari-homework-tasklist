@@ -38,7 +38,7 @@ def fetch_new_homework(user_id):
         return
     known = [hw.baka_id for hw in Homework.query.filter_by(user_id=user_id).all()]
     req = requests.get(u.url, params={"hx": u.token, "pm": "ukoly"})
-    root = ElementTree.fromstring(req.content.decode())[0]
+    root = ElementTree.fromstring(req.content.decode("utf-8"))[0]
 
     for ukol in root.findall("ukol"):
         hw_id = ukol.find("id").text
@@ -56,7 +56,7 @@ def first_update(user_id, undone_since):
     if u is None:
         return
     req = requests.get(u.url, params={"hx": u.token, "pm": "ukoly"})
-    root = ElementTree.fromstring(req.content.decode())[0]
+    root = ElementTree.fromstring(req.content.decode("utf-8"))[0]
 
     for ukol in root.findall("ukol"):
         hw: Homework = parse_hw(ukol, HomeworkState.TODO)

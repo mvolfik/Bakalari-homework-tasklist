@@ -92,7 +92,7 @@ def login():
         else:
             # --- validate token --> password
             req = get(url, params={"hx": token, "pm": "login"}, verify=False)
-            root = ElementTree.fromstring(req.content.decode())
+            root = ElementTree.fromstring(req.content.decode("utf-8"))
             result = root.find("result").text
             if result == "-1":
                 flash("Špatné heslo", FlashColor.ERROR_RED)
