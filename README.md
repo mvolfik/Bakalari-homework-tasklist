@@ -24,3 +24,11 @@ Pokud mi chcete nahlásit chybu, navrhnout vylepšení nebo mě kontaktovat z ji
 přejděte na stránku [Kontakt](https://bakalari-homework-tasklist.herokuapp.com).
 
 Zdrojové kódy jsou k dispozici v tomto repozitáři.
+
+# Disclaimer
+
+Tato aplikace je vyvíjena kompletně nezávisle na společnosti BAKALÁŘI Software,
+s. r. o., a nemá s touto společností nic společného, ani jí není schvalována.  
+Tato aplikace pouze stahuje data ze systémů vyvinutých touto firmou a následně umožňuje
+uživatelům zobrazit stejná data, která by viděli v těchto systémech, ale mírně odlišným
+způsobem.

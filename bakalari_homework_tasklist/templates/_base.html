@@ -25,21 +25,31 @@
         {% if navigation_bar %}
             div#nav {
                 display: flex;
-                background-color: #333;
                 margin: 0;
                 padding: 0;
-                flex-wrap: wrap;
+                flex-wrap: wrap-reverse;
+                align-items: flex-end;
             }
+
             #nav #logo img {
                 max-height: 4em;
                 margin: 0.5em;
             }
+
+            #nav #logo {
+                border: 5px double #333;
+                border-bottom-right-radius: 15px;
+            }
+
             ul#nav-links {
-                flex: 1;
+                flex-grow: 1;
                 list-style-type: none;
                 margin: 0;
                 padding: 0;
                 overflow: hidden;
+                background-color: #333;
+                display: block;
+                height: max-content;
             }
 
             ul#nav-links li {
@@ -89,8 +99,8 @@
                 float: right;
                 padding: 1em;
                 margin: 0 0 1em 1em;
-                background-color: #ddd;
-                border-bottom-left-radius: 5px;
+                background-color: #ccc;
+                border-radius: 10px 0 0 10px;
             }
         {% endif %}
     </style>
@@ -142,6 +152,9 @@
 <p id="footer">
     Bakaláři-homework-tasklist | Copyright &copy; 2020
     <a href="https://github.com/mvolfik" target="_blank">Matěj Volf</a>
+    <br/>
+    Tato aplikace je vyvíjena kompletně nezávisle na společnosti BAKALÁŘI Software,
+    s. r. o., a nemá s touto společností nic společného, ani jí není schvalována.
 </p>
 {% block end %}
 {% endblock %}
