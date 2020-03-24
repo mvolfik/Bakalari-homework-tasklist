@@ -3,6 +3,7 @@ import os
 
 import rq
 from flask import Flask, before_render_template, redirect, render_template, url_for
+from flask_wtf import CSRFProtect
 from redis import Redis
 
 
@@ -11,7 +12,9 @@ def create_app(config=None, *, keep_default=True, **kwargs):
     app = Flask(__name__)
 
     # --- template helpers
-    from .utils import create_navbar, get_grouped_flashes
+    from .utils import create_navbar, get_grouped_flashes, BetterJSONEncoder
+
+    app.json_encoder = BetterJSONEncoder
 
     app.add_template_global(get_grouped_flashes)
     before_render_template.connect(create_navbar, app)
@@ -31,6 +34,7 @@ def create_app(config=None, *, keep_default=True, **kwargs):
         app.config.from_mapping(kwargs)
 
     # --- blueprints and plugins registration
+    CSRFProtect(app)
     from .db import db
 
     db.init_app(app)
@@ -45,6 +49,9 @@ def create_app(config=None, *, keep_default=True, **kwargs):
     app.register_blueprint(bp)
     app.redis = Redis.from_url(app.config["REDIS_URL"])
     app.task_queue = rq.Queue("homework-fetcher", connection=app.redis)
+    from .api import bp
+
+    app.register_blueprint(bp)
 
     # --- home route
     @app.route("/")

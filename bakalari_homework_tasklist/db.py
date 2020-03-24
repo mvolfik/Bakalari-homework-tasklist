@@ -1,10 +1,18 @@
-from enum import Enum
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from datetime import date, datetime
+from typing import List
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
+from jinja2.filters import do_truncate
+from sqlalchemy import ForeignKey, UniqueConstraint
 
 db = SQLAlchemy()
+
+html_re = re.compile(r"<.+?>")
 
 
 class User(db.Model, UserMixin):
@@ -23,15 +31,10 @@ class User(db.Model, UserMixin):
     )
 
 
-class HomeworkState(Enum):
-    TODO = 1
-    DONE = 2
-    POSTPONED = 3
-    OTHER = 4
-
-
+@dataclass(init=False, eq=False)
 class Homework(db.Model):
-    id = db.Column(db.Integer, primary_key=True)  # just for this app
+    summary: str
+    id: int = db.Column(db.Integer, primary_key=True)  # just for this app
     baka_id = db.Column(db.String, nullable=False)
     # baka_id is from the Bakaláři system, it can't be unique because:
     #            a) I have no idea if it is unique across schools (= Bakaláři instances)
@@ -41,35 +44,49 @@ class Homework(db.Model):
     # however, we store it to know if we already have this homework in this user's list
     # of homework
 
-    assigned = db.Column(db.DateTime, nullable=False)
-    due = db.Column(db.DateTime, nullable=False)
-    subject = db.Column(db.String, nullable=False)
-    description = db.Column(db.String)
+    assigned: datetime = db.Column(db.DateTime, nullable=False)
+    due: datetime = db.Column(db.DateTime, nullable=False)
+    subject: str = db.Column(db.String, nullable=False)
+    subject_short: str = db.Column(db.String, nullable=False)
+    description: str = db.Column(db.String)
 
     user_id = db.Column(db.Integer, ForeignKey(User.id), nullable=False)
     user = db.relationship(User, backref="homeworks")
 
-    state = db.Column(
-        db.Enum(HomeworkState), default=HomeworkState.TODO, nullable=False
-    )
-    postponed_until = db.Column(db.Date)
+    is_done: bool = db.Column(db.Boolean, nullable=False, default=False)
+    postponed_until: date = db.Column(db.Date)
 
-    __table_args__ = (
-        CheckConstraint("(state = 'POSTPONED') = (postponed_until IS NOT NULL)"),
+    attachments: List[Attachment] = db.relationship(
+        "Attachment", back_populates="homework"
     )
 
+    @property
+    def summary(self) -> str:
+        if self.description is None:
+            return ""
+        else:
+            return do_truncate(
+                None, html_re.sub("", self.description), 80, False, "&hellip;", 5
+            )
 
+
+@dataclass(init=False, eq=False)
 class Attachment(db.Model):
+    url: str
     id = db.Column(db.Integer, primary_key=True)
-    # see note for Homework, though we don't need baka_id here, we just use it when
-    # storing to create dl_link
+    # see note for Homework, though we don't need baka_id here, we just use it to create
+    # the url when storing it
 
-    filename = db.Column(db.String, nullable=False)
-    dl_link = db.Column(db.String, nullable=False)
+    filename: str = db.Column(db.String, nullable=False)
+    url_placeholder = db.Column(db.String, nullable=False)
     # "{}" instead of token to be formatted with actual token later
 
     homework_id = db.Column(db.Integer, ForeignKey(Homework.id), nullable=False)
-    homework = db.relationship(Homework, backref="attachments")
+    homework = db.relationship(Homework, back_populates="attachments")
+
+    @property
+    def url(self) -> str:
+        return self.url_placeholder.format(self.homework.user.token)
 
 
 class Message(db.Model):

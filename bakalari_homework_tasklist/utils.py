@@ -1,7 +1,8 @@
 from collections import defaultdict
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 
 from flask import flash, get_flashed_messages
+from flask.json import JSONEncoder
 from flask_login import current_user
 from flask_wtf import FlaskForm
 
@@ -40,11 +41,30 @@ def create_navbar(sender, template, context, **extra):
             ("home", "Úvod", ""),
             ("core.list_homeworks", "Domácí úkoly", ""),
             ("core.contact", "Kontakt", ""),
-            ("auth.logout", "Odhlásit se", "style='float:right'"),
+            ("auth.logout", "Odhlásit se", ""),
         )
     else:
         context["navigation_bar"] = (
             ("home", "Úvod", ""),
             ("core.contact", "Kontakt", ""),
-            ("auth.login", "Přihlásit se", "style='float:right'"),
+            ("auth.login", "Přihlásit se", ""),
         )
+
+
+class BetterJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if type(o) == datetime:
+            return {
+                "display": "{}. {}".format(
+                    o.day,
+                    o.strftime("%b %y" + (" %H:%M" if o.time() != time.min else "")),
+                ),
+                "timestamp": o.timestamp(),
+            }
+        elif type(o) == date:
+            return {
+                "display": "{}. {}".format(o.day, o.strftime("%b %y")),
+                "timestamp": o.toordinal(),
+            }
+        else:
+            return super(BetterJSONEncoder, self).default(o)

@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date
 from urllib.error import URLError
 from xml.etree import ElementTree
 
@@ -157,42 +157,22 @@ class FirstImportForm(FlaskForm):
             raise ValidationError("Nelze zadat datum v budoucnosti")
 
 
-@bp.route("/first-import", methods=("GET", "POST"))
+@bp.route("/first-import")
 def first_import():
     today = date.today()
     if "token_date" not in session or date.fromordinal(session["token_date"]) != today:
         return redirect(url_for("auth.login"), 303)
 
     f = FirstImportForm()
-    if f.validate_on_submit():
-        # noinspection PyArgumentList
-        u = User(
-            username=session.pop("username"),
-            url=session.pop("url"),
-            token=session.pop("token"),
-            token_date=today,
-            name=session.pop("name"),
-            account_type=session.pop("account_type"),
-        )
-        del session["token_date"]
-        db.session.add(u)
-        db.session.commit()
-        login_user(u, remember=True, duration=until_midnight())
-
-        job = current_app.task_queue.enqueue(
-            "bakalari_homework_tasklist.worker_tasks.first_update",
-            u.id,
-            datetime.combine(f.date.data, time.min),
-        )
-        if "running_jobs" not in session:
-            session["running_jobs"] = []
-        session["running_jobs"].append(job.get_id())
-        session.modified = True
-        flash(
-            "Import úkolů byl zahájen, vyčkejte prosím&hellip;",
-            FlashColor.CONFIRMATION_GREEN,
-        )
-        return redirect(url_for("core.list_homeworks"), 303)
-
     flash_form_errors(f)
     return render_template("first_import.html", form=f)
+
+
+@bp.route("/first-login")
+def do_first_login():
+    login_user(
+        User.query.get(
+            current_app.task_queue.fetch_job(session.pop("login_job_id")).result
+        )
+    )
+    return redirect(url_for("core.list_homeworks"))

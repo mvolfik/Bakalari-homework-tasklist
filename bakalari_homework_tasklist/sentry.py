@@ -5,8 +5,8 @@ from flask import request
 from flask_login import current_user
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.rq import RqIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 
 def add_user_info(event, hint):

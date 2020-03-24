@@ -1,77 +1,792 @@
 {% extends "_base.html" %}
 {% block head %}
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/js/dist/tab.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@1/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css">
+          href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/thedatepicker/dist/the-datepicker.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/thedatepicker/dist/the-datepicker.js"></script>
     <style>
-        p.reload-notice {
-            background-color: #ffffbb;
-            font-style: italic;
-            border-radius: 10px;
-            padding: 1em;
-            overflow: hidden;
+        body {
+            background-color: #f5f5f5;
         }
+
+        main {
+            margin: 0 !important;
+        }
+
+        #before-table-wrapper {
+            margin: 0.5em 2em;
+        }
+
+        .button {
+            font-size: 0.9em;
+            font-family: sans-serif;
+            padding: 4px 8px;
+            text-align: center;
+            text-decoration: none;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            background-color: white;
+            color: black;
+            border: 4px double hsl(200, 70%, 45%);
+            border-radius: 5px;
+            display: inline-block;
+            margin: 0.2em;
+        }
+
+        .button[disabled] {
+            background-color: #ddd;
+            cursor: default;
+        }
+
+        .button:not([disabled]):hover {
+            background-color: hsl(200, 57%, 55%);
+            border-color: hsl(200, 82%, 32%);
+            color: white;
+            text-decoration: none;
+        }
+
+        form#import_form {
+            margin: 1em;
+        }
+
+        div#filters {
+            display: flex;
+            flex-wrap: wrap;
+            clear: both;
+        }
+
+        #filters fieldset {
+            margin: 1em;
+        }
+
+        #filters fieldset p {
+            margin: 0.1em;
+        }
+
+        table#data-table > tbody > tr[role=row] > td {
+            text-align: center;
+            font-size: 0.8em;
+            border-bottom: 1px solid #aaa;
+        }
+
+        table#data-table tr[role=row]:hover {
+            background-color: #f5f5f5;
+        }
+
+        a.attach-link {
+            font-size: 0.9em;
+        }
+
+        .hint {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        body.big table#data-table > tbody > tr[role=row] > td:nth-child(4) {
+            cursor: pointer;
+        }
+
+        body.big table#data-table > tbody > tr[role=row].shown > td:nth-child(4) {
+            border-bottom: none;
+            border-left: 1px solid #aaa;
+            border-right: 1px solid #aaa;
+            background-color: #eee;
+        }
+
+        body.small table#data-table > tbody > tr[role=row] > td:nth-child(3) {
+            cursor: pointer;
+        }
+
+        body.small table#data-table > tbody > tr[role=row].shown > td:nth-child(3) {
+            border-bottom: none;
+            border-left: 1px solid #aaa;
+            border-right: 1px solid #aaa;
+            background-color: #eee;
+        }
+
+        table#data-table > tbody > tr:not([role=row]) > td {
+            background-color: #eee;
+            border: solid #aaa;
+            border-width: 0 1px 1px 1px;
+        }
+
+        p.details-full-description {
+            font-size: 0.9em;
+        }
+
+        td.dataTables_empty {
+            border: none !important;
+            background-color: #888 !important;
+            color: white !important;
+            font-size: 1.2em !important;
+            padding: 1em !important;
+        }
+
+        /* modal */
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        #modal-window {
+            background-color: white;
+            margin: 2em auto;
+            padding: 20px;
+            width: 80%;
+        }
+
+        #close-modal {
+            color: #555;
+            float: right;
+            font-size: 2em;
+        }
+
+        #close-modal:hover,
+        #close-modal:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        body.big table.details-table {
+            float: left;
+            border-collapse: collapse;
+            margin-right: 0.6em;
+        }
+
+        body.big table#data-table tr > :nth-child(6) {
+            font-size: 1.2em !important;
+        }
+
+        body.small table.details-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        body.small table.details-table tr > * {
+            padding: 0.5em 0.1em;
+        }
+
     </style>
 {% endblock %}
 {% block body %}
-    <p>
-        <a href="{{ url_for("core.fetch_new") }}">Importovat nové úkoly z Bakalářů</a>
-    </p>
-    {% if reloader %}
-        <p class="reload-notice">Vaše úkoly se aktualizují z Bakalářů, prosím, obnovte
-            stránku za několik
-            vteřin.</p>
-    {% endif %}
-    <!-- Tab controls -->
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo"
-               role="tab" aria-controls="todo" aria-selected="true">Nevyřízené</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="postponed-tab" data-toggle="tab" href="#postponed"
-               role="tab" aria-controls="postponed" aria-selected="false">Odložené</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="done-tab" data-toggle="tab" href="#done"
-               role="tab" aria-controls="done" aria-selected="false">Hotové</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="other-tab" data-toggle="tab" href="#other"
-               role="tab" aria-controls="other" aria-selected="false">Ostatní</a>
-        </li>
-    </ul>
-
-    <!-- Tab panes -->
-    <div class="tab-content">
-        <div class="tab-pane active" id="todo" role="tabpanel"
-             aria-labelledby="todo-tab">
-            {% for hw in hwgroups["TODO"] %}
-                {{ hw.description | safe }}
-            {% endfor %}
+    <div id="before-table-wrapper">
+        <button type="button" id="start-import" class="button">Importovat nové úkoly z
+            Bakalářů
+        </button>
+        <div id="filters">
+            <fieldset>
+                <legend>Filtrovat podle předmětu</legend>
+                <p>
+                    <button type="button" class="button select-all">Vybrat vše</button>
+                    <button type="button" class="button deselect-all">Zrušit výběr
+                    </button>
+                </p>
+                {% for subject, short in subjects | sort %}
+                    <p>
+                        <input type="checkbox" id="subject-{{ short }}" checked/>
+                        <label for="subject-{{ short }}">{{ subject }}</label>
+                    </p>
+                {% endfor %}
+            </fieldset>
+            <fieldset>
+                <legend>Ostatní filtry</legend>
+                <p>
+                    <label for="postponed-select">Zobrazit úkoly podle stavu
+                        odložení</label>:
+                    <select id="postponed-select">
+                        <option value="active" selected="selected">jen neodložené
+                        </option>
+                        <option value="all">všechny</option>
+                        <option value="postponed">jen odložené</option>
+                    </select>
+                </p>
+                <p>
+                    <label for="done-select">Zobrazit úkoly podle stavu
+                        vypracování</label>:
+                    <select id="done-select">
+                        <option value="undone" selected="selected">jen nehotové</option>
+                        <option value="all">všechny</option>
+                        <option value="done">jen hotové</option>
+                    </select>
+                </p>
+            </fieldset>
         </div>
-        <div class="tab-pane" id="postponed" role="tabpanel"
-             aria-labelledby="postponed-tab">
-            {% for hw in hwgroups["POSTPONED"] %}
-                {{ hw.description | safe }}
-            {% endfor %}
-        </div>
-        <div class="tab-pane" id="done" role="tabpanel"
-             aria-labelledby="done-tab">
-            {% for hw in hwgroups["DONE"] %}
-                {{ hw.description | safe }}
-            {% endfor %}
-        </div>
-        <div class="tab-pane" id="other" role="tabpanel"
-             aria-labelledby="other-tab">
-            {% for hw in hwgroups["OTHER"] %}
-                {{ hw.description | safe }}
-            {% endfor %}
+        <p>
+            <button type="button" id="reload-data" class="button">Obnovit data</button>
+        </p>
+        <p class="hint">
+            Nápověda: Klikněte na nadpis sloupce pro seřazení. Shift+kliknutím vyberte
+            sekundární řazení.
+        </p>
+        <p class="hint">
+            Celý popis úkolu zobrazíte kliknutím na náhled
+        </p>
+    </div>
+    <table id="data-table"></table>
+{% endblock %}
+{% block end %}
+    <div id="modal">
+        <div id="modal-window">
+            <span id="close-modal"><i class="fas fa-window-close"></i></span>
+            <div id="modal-content"></div>
         </div>
     </div>
-    {% for hw in homeworks %}
-        {{ hw.description | safe }}
-    {% endfor %}
+    <script>
+        let table_JQ = $("table#data-table");
+        let table;
+        let modal = $("#modal");
+        let close_modal = $("#close-modal");
+        let modal_content = $("#modal-content");
+        let small = window.innerWidth < 900;
+        let reloadinterval;
+        let job_id;
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token() }}");
+                }
+            }
+        });
+
+        // filters
+        $("#filters input[type=checkbox], #filters select").on("change", function () {
+            table.draw();
+        });
+        $.fn.dataTable.ext.search.push(
+            function (_, __, ___, data) {
+                let x = $("#postponed-select").prop("value");
+                let postponed_filter = (x === "all"
+                    || (x === "active" && data["postponed_until"] === null)
+                    || (x === "postponed" && data["postponed_until"] !== null));
+
+                x = $("#done-select").prop("value");
+                let done_filter = (x === "all"
+                    || (x === "done" && data["is_done"])
+                    || (x === "undone" && !data["is_done"]));
+                return ($("#subject-" + data["subject_short"]).prop("checked")
+                    && postponed_filter && done_filter);
+            }
+        );
+        $("#filters button.select-all").on("click", function () {
+            let fieldset = $(this).closest("fieldset");
+            let boxes = $(fieldset).find("input[type=checkbox]");
+            boxes.prop("checked", true);
+            $(boxes[0]).trigger("change");
+        });
+        $("#filters button.deselect-all").on("click", function () {
+            let fieldset = $(this).closest("fieldset");
+            let boxes = $(fieldset).find("input[type=checkbox]");
+            boxes.prop("checked", false);
+            $(boxes[0]).trigger("change");
+        });
+
+        function get_data_row(JQ_this) {
+            if (small) {
+                return JQ_this.closest("tr").prev();
+            } else {
+                return JQ_this.closest("tr");
+            }
+        }
+
+        function check_result() {
+            $.post(
+                "{{ url_for("api.get_job_result") }}",
+                {job_id: job_id},
+                function (d) {
+                    if (d.finished) {
+                        clearInterval(reloadinterval);
+                        if (d.failed) {
+                            modal_content.html("<i class='fas fa-times-circle'></i> Nastala neznámá chyba. Zkuste to prosím znovu");
+                        } else {
+                            modal_content.html("Bylo naimportováno " + d.result.toString() + ' nových úkolů. Pro jejich zobrazení zmáčkněte tlačítko "Obnovit data"')
+                        }
+                        modal.show();
+                        close_modal.show();
+                    }
+
+                });
+        }
+
+
+        $("button#start-import").on("click", function () {
+            modal_content.html("<i class='fas fa-spinner fa-spin'></i> Požadavek se odesílá&hellip;");
+            close_modal.hide();
+            modal.show();
+            $.post(
+                "{{ url_for("api.start_import") }}",
+                function (d) {
+                    reloadinterval = setInterval(check_result, 800);
+                    job_id = d["job_id"];
+                    modal_content.html("<i class='fas fa-spinner fa-spin'></i> Import byl zahájen. Nové úkoly budou dostupné za několik vteřin");
+                    close_modal.show();
+                });
+        });
+        // button listeners
+        table_JQ.on("click", "button.mark-done", function () {
+            let but = $(this);
+            let row = table.row(get_data_row(but));
+            let data = row.data();
+
+            but.prepend("<i class='fas fa-spinner fa-spin'></i> ");
+            but.prop("disabled", true);
+            $.post(
+                "{{ url_for("api.change_status") }}",
+                {hw_id: data["id"], action: "mark-done"},
+                function (d) {
+                    if (d["ok"]) {
+                        data["is_done"] = true;
+                        row.invalidate();
+                        if (small) {
+                            row.child(render_details(data))
+                        }
+                    } else {
+                        modal_content.html("<i class='fas fa-times'></i> Nepodařilo se změnit stav úlohy. Zkuste to prosím znovu");
+                        close_modal.show();
+                        modal.show();
+                        row.invalidate();
+                        if (small) {
+                            row.child(render_details(data))
+                        }
+                    }
+                }
+            )
+        });
+        table_JQ.on("click", "button.mark-undone", function () {
+            let but = $(this);
+            let row = table.row(get_data_row(but));
+            let data = row.data();
+
+            but.prepend("<i class='fas fa-spinner fa-spin'></i> ");
+            but.prop("disabled", true);
+            $.post(
+                "{{ url_for("api.change_status") }}",
+                {hw_id: data["id"], action: "mark-undone"},
+                function (d) {
+                    if (d["ok"]) {
+                        data["is_done"] = false;
+                        row.invalidate();
+                        if (small) {
+                            row.child(render_details(data))
+                        }
+                    } else {
+                        modal_content.html("<i class='fas fa-times'></i> Nepodařilo se změnit stav úlohy. Zkuste to prosím znovu");
+                        close_modal.show();
+                        modal.show();
+                        row.invalidate();
+                        if (small) {
+                            row.child(render_details(data))
+                        }
+                    }
+                }
+            )
+        });
+
+        table_JQ.on("click", "button.unpostpone", function () {
+            let but = $(this);
+            let row = table.row(get_data_row(but));
+            let data = row.data();
+
+            but.prepend("<i class='fas fa-spinner fa-spin'></i> ");
+            but.prop("disabled", true);
+            $.post(
+                "{{ url_for("api.change_status") }}",
+                {hw_id: data["id"], action: "unpostpone"},
+                function (d) {
+                    if (d["ok"]) {
+                        data["postponed_until"] = null;
+                        row.invalidate();
+                        if (small) {
+                            row.child(render_details(data))
+                        }
+                    } else {
+                        modal_content.html("<i class='fas fa-times'></i> Nepodařilo se změnit stav úlohy. Zkuste to prosím znovu");
+                        close_modal.show();
+                        modal.show();
+                        row.invalidate();
+                        if (small) {
+                            row.child(render_details(data))
+                        }
+                    }
+                }
+            )
+        });
+        table_JQ.on("click", "button.postpone", function () {
+
+            let grid_div = $(document.createElement("div"));
+            modal_content.html(grid_div);
+
+            let label = document.createElement("label");
+            label.for = "postpone-until-date";
+            label.innerText = "Odložit do:";
+            grid_div.html(label);
+
+            let input = document.createElement("input");
+            input.type = "text";
+            input.size = 20;
+            input.id = "postpone-until-date";
+            input.name = "date";
+            grid_div.append(input);
+
+            let box = document.createElement("div");
+            grid_div.append(box);
+
+
+            let datepicker = new TheDatepicker.Datepicker(input, box);
+            let tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            let yearAhead = new Date();
+            yearAhead.setFullYear(yearAhead.getFullYear() + 1);
+            datepicker.options.setInitialDate(tomorrow);
+
+            datepicker.options.setMinDate(tomorrow);
+            datepicker.options.setMaxDate(yearAhead);
+            datepicker.options.setMonthAsDropdown(false);
+            datepicker.options.setYearAsDropdown(false);
+            datepicker.options.setShowDeselectButton(false);
+            datepicker.options.setAllowEmpty(false);
+            datepicker.options.setShowCloseButton(false);
+            datepicker.options.setHideOnBlur(false);
+            datepicker.options.setHideOnSelect(false);
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Monday, "Po");
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Tuesday, "Út");
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Wednesday, "St");
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Thursday, "Čt");
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Friday, "Pá");
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Saturday, "So");
+            datepicker.options.translator.setDayOfWeekTranslation(TheDatepicker.DayOfWeek.Sunday, "Ne");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.January, "Leden");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.February, "Únor");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.March, "Březen");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.April, "Duben");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.May, "Květen");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.June, "Červen");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.July, "Červenec");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.August, "Srpen");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.September, "Září");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.October, "Říjen");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.November, "Listopad");
+            datepicker.options.translator.setMonthTranslation(TheDatepicker.Month.December, "Prosinec");
+            datepicker.options.translator.setTitleTranslation(TheDatepicker.TitleName.GoBack, "Předchozí měsíc");
+            datepicker.options.translator.setTitleTranslation(TheDatepicker.TitleName.GoForward, "Následující měsíc");
+            {#TODO: show number of homeworks already postponed on that day in the calendar#}
+
+            let submit = document.createElement("button");
+            submit.innerText = "Odložit";
+            grid_div.append(submit);
+            if (small) {
+                grid_div.css({
+                    display: "flex",
+                    "flex-direction": "column",
+                    "max-width": "max-content",
+                    margin: "auto"
+                })
+            } else {
+                grid_div.css({
+                    display: "grid",
+                    "max-width": "max-content",
+                    margin: "auto"
+                });
+                label.style = "margin-right: 2em; padding-top: 0.3em;";
+                input.style = "grid-column: 2; text-align: center;";
+                box.style = "max-width: max-content; grid-area: 2/2/4/3";
+                submit.style = "margin-left: 2em; padding: 0.5em 1em; grid-area: 3/3";
+            }
+            close_modal.show();
+            modal.show();
+            datepicker.open();
+
+            let but = $(this);
+            let row = table.row(get_data_row(but));
+            let data = row.data();
+
+            $(submit).one("click", function () {
+                datepicker.options.setInputFormat("Y-m-d");
+                modal_content.html("<i class='fas fa-spinner fa-spin'></i> Odesílám&hellip;");
+                $.post(
+                    "{{ url_for("api.change_status") }}",
+                    {
+                        hw_id: data["id"],
+                        action: "postpone",
+                        until: datepicker.getSelectedDateFormatted()
+                    },
+                    function (d) {
+                        if (d["ok"]) {
+                            modal_content.text("Odloženo");
+                            close_modal.show();
+                            data["postponed_until"] = d["new_data"];
+                            row.invalidate();
+                            if (small) {
+                                row.child(render_details(data))
+                            }
+                        } else {
+                            modal_content.html("<i class='fas fa-times'></i> Nepodařilo se změnit stav úlohy. Zkuste to prosím znovu");
+                            close_modal.show();
+                            row.invalidate();
+                            if (small) {
+                                row.child(render_details(data))
+                            }
+                        }
+                    }
+                )
+            });
+        });
+
+        $("#reload-data").on("click", function () {
+            table.ajax.reload();
+        });
+        // modal listeners
+        close_modal.on("click", function () {
+            modal.hide();
+            modal_content.html("");
+        });
+
+        $(window).on("click", function (e) {
+            if (e.target === modal[0] && close_modal.css("display") !== "none") {
+                modal.hide()
+            }
+        });
+        // datatables child rows
+        let number = small ? 3 : 4;
+        table_JQ.on("click", "tr[role='row'] td:nth-child(" + number.toString() + ")", function () {
+            let tr = $(this).closest("tr");
+            let row = table.row(tr);
+            if (row.child.isShown()) {
+                row.child.hide();
+                tr.removeClass("shown");
+            } else {
+                row.child(render_details(row.data())).show();
+                tr.addClass("shown");
+            }
+        });
+
+
+        // renderers
+        function render_done(d, type) {
+            if (type === "display") {
+                let i = document.createElement("i");
+                i.className = "fas";
+                i.classList.add(d ? "fa-check" : "fa-times");
+                return i.outerHTML;
+            } else if (type === "filter") {
+                return ""
+            } else {
+                return d;
+            }
+        }
+
+        function render_summary(orig_text, type, data) {
+            if (type === "display" && data["attachments"].length > 0) {
+                return "<i class='fas fa-paperclip'></i>&nbsp;" + orig_text
+            } else {
+                return orig_text;
+            }
+
+        }
+
+        function addRow(table, title, content, unsafe_content = true) {
+            let tr = document.createElement("tr");
+            let th = document.createElement("th");
+            th.appendChild(document.createTextNode(title));
+            tr.appendChild(th);
+
+            let td = document.createElement("td");
+            if (unsafe_content) {
+                td.appendChild(document.createTextNode(content));
+            } else {
+                td.innerHTML = content;
+            }
+            tr.appendChild(td);
+            table.appendChild(tr);
+        }
+
+        function render_details(data) {
+            let div = document.createElement("div");
+            div.className = "details-content";
+
+            let table;
+            if (small || data["attachments"].length > 0) {
+                table = document.createElement("table");
+                table.className = "details-table";
+            }
+
+            if (small) {
+                addRow(table, "Zadáno:", data["assigned"]["display"]);
+                addRow(table, "Hotovo?", render_done(data["is_done"], "display"), false);
+                if (data["postponed_until"] !== null) {
+                    addRow(table, "Odloženo do:", data["postponed_until"]["display"]);
+                }
+                div.innerHTML = render_actions(data);
+                div.appendChild(table);
+            }
+            if (data["attachments"].length > 0) {
+                let attachments = [];
+                for (const attachment of data["attachments"]) {
+                    attachments.push(`<a class="attach-link" href="${attachment["url"]}">${attachment["filename"]}</a>`);
+                }
+                addRow(table, "Přílohy:", attachments.join(" "), false);
+                if (!small) {
+                    div.appendChild(table);
+                }
+            }
+
+            let content = document.createElement("p");
+            content.innerHTML = data["description"];
+            content.className = "details-full-description";
+            div.appendChild(content);
+
+            return div;
+        }
+
+        function render_actions(d) {
+            let buttons = [];
+            if (d["is_done"]) {
+                buttons.push('<button type="button" class="button mark-undone">Nehotové</button>')
+            } else {
+                buttons.push('<button type="button" class="button mark-done">Hotové</button>')
+            }
+            if (d["postponed_until"] === null) {
+                buttons.push('<button type="button" class="button postpone">Odložit</button>')
+            } else {
+                buttons.push('<button type="button" class="button unpostpone">Zrušit odložení</button>')
+            }
+            return buttons.join(" ");
+        }
+
+        $(function () {
+            let columns;
+            let order;
+            if (small) {
+                $("body").addClass("small");
+                order = [[1, "asc"]];
+                columns = [
+                    {
+                        data: {
+                            _: "subject_short",
+                            filter: "subject"
+                        },
+                        title: "Př."
+                    },
+                    {
+                        data: {
+                            _: "due.display",
+                            sort: "due.timestamp"
+                        },
+                        title: "Odevzdat"
+                    },
+                    {
+                        data: {
+                            _: "summary",
+                            filter: "description"
+                        },
+                        defaultContent: "",
+                        title: "Náhled popisu",
+                        orderable: false
+                    }
+                ];
+            } else {
+                $("body").addClass("big");
+                order = [[1, "asc"], [2, "asc"]];
+                columns = [
+                    {
+                        data: "subject",
+                        title: "Předmět"
+                    },
+                    {
+                        data: {
+                            _: "assigned.display",
+                            sort: "assigned.timestamp"
+                        },
+                        title: "Zadáno"
+                    },
+                    {
+                        data: {
+                            _: "due.display",
+                            sort: "due.timestamp"
+                        },
+                        title: "Odevzdat"
+                    },
+                    {
+                        data: {
+                            _: "summary",
+                            filter: "description"
+                        },
+                        render: render_summary,
+                        defaultContent: "",
+                        title: "Náhled popisu",
+                        orderable: false
+                    },
+                    {
+                        data: {
+                            _: "postponed_until.display",
+                            sort: "postponed_until.timestamp"
+                        },
+                        defaultContent: "",
+                        title: "Odložit do"
+                    },
+                    {
+                        title: "<i class='fas fa-question-circle'></i>",
+                        data: "is_done",
+                        render: render_done
+                    },
+                    {
+                        data: render_actions,
+                        title: "Akce",
+                        orderable: false
+                    }
+                ];
+            }
+            table = $("table#data-table").DataTable({
+                ajax: {
+                    url: "{{ url_for("api.load_data") }}",
+                    dataSrc: ''
+                },
+                rowId: "id",
+                paging: false,
+                autoWidth: false,
+                order: order,
+                columns: columns,
+                language: {
+                    emptyTable: "Žádné domácí úkoly v systému",
+                    info: "Zobrazeno _TOTAL_ domácích úkolů",
+                    infoEmpty: "Zobrazeno 0 domácích úkolů",
+                    infoFiltered: "z celkového počtu _MAX_",
+                    infoPostFix: "",
+                    thousands: "'",
+                    lengthMenu: "Zobrazovat maximálně _MENU_ domácích úkolů na stránku",
+                    loadingRecords: "Načítání...",
+                    processing: "Zpracovávání...",
+                    search: "Hledat:",
+                    zeroRecords: "Žádný odpovídající domácí úkol",
+                    paginate: {
+                        first: "První",
+                        last: "Poslední",
+                        next: "Další",
+                        previous: "Předchozí"
+                    },
+                    aria: {
+                        sortAscending: ": aktivujte pro seřazení sloupce vzestupně",
+                        sortDescending: ": aktivujte pro seřazení sloupce sestupně"
+                    }
+                }
+            });
+            table.on('preXhr', function (e, settings, _) {
+                table.clear();
+                settings.iDraw = 0;   //set to 0, which means "initial draw" which with a clear table will show "loading..." again.
+                table.draw();
+            });
+        });
+    </script>
 {% endblock %}
