@@ -17,11 +17,10 @@ from .utils import FlashColor, flash_form_errors
 
 bp = Blueprint("core", __name__)
 
-
 class ContactForm(FlaskForm):
     is_error = BooleanField("Informuji o chybě v aplikaci")
     email = EmailField(
-        "Můj e-mail pro odpověd (volitelný)",
+        "Tvůj e-mail pro odpověd (volitelný)",
         validators=[
             Optional(),
             Email("Do pole e-mail nezadávejte nic, nebo zadejte platný e-mail"),
@@ -34,7 +33,6 @@ class ContactForm(FlaskForm):
             Length(min=10, message="Zpráva by měla být alespoň 10 znaků, ne?"),
         ],
     )
-
 
 @bp.route("/contact", methods=("GET", "POST"))
 def contact():
@@ -51,7 +49,6 @@ def contact():
     flash_form_errors(f)
     return render_template("contact.html", form=f)
 
-
 @bp.route("/list-homeworks")
 @login_required
 def list_homeworks():
@@ -62,7 +59,6 @@ def list_homeworks():
         .all()
     )
     return render_template("list_homeworks.html", subjects=subjects)
-
 
 @bp.route("/fetch-new")
 @login_required
