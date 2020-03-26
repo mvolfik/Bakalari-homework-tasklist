@@ -34,6 +34,7 @@ class ContactForm(FlaskForm):
         ],
     )
 
+
 @bp.route("/contact", methods=("GET", "POST"))
 def contact():
     is_error = request.args.get("error", "no") == "yes"
@@ -49,6 +50,7 @@ def contact():
     flash_form_errors(f)
     return render_template("contact.html", form=f)
 
+
 @bp.route("/list-homeworks")
 @login_required
 def list_homeworks():
@@ -59,6 +61,7 @@ def list_homeworks():
         .all()
     )
     return render_template("list_homeworks.html", subjects=subjects)
+
 
 @bp.route("/fetch-new")
 @login_required
