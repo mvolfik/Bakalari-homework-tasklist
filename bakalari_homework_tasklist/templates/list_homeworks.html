@@ -160,7 +160,6 @@
         }
 
         body.big table.details-table {
-            float: left;
             border-collapse: collapse;
             margin-right: 0.6em;
         }
@@ -590,7 +589,7 @@
 
         function render_summary(orig_text, type, data) {
             if (type === "display" && data["attachments"].length > 0) {
-                return "<i class='fas fa-paperclip'></i>&nbsp;" + orig_text
+                return orig_text + "&nbsp;<i class='fas fa-paperclip'></i>"
             } else {
                 return orig_text;
             }
@@ -637,7 +636,7 @@
                 for (const attachment of data["attachments"]) {
                     attachments.push(`<a class="attach-link" href="${attachment["url"]}">${attachment["filename"]}</a>`);
                 }
-                addRow(table, "Přílohy:", attachments.join(" "), false);
+                addRow(table, "Přílohy:", attachments.join(", "), false);
                 if (!small) {
                     div.appendChild(table);
                 }
