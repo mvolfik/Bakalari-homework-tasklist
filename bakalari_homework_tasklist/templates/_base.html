@@ -205,6 +205,32 @@
     {% endif %}
 {% endwith %}
 
+{% if config["PAUSE_REQUESTS"] %}
+    <div style="color: #ff6000;margin: 2em;border: 2px solid #f00;padding: 1em;font-size: 0.9em;background-color: #e0e0e0;">
+        <p>Vážení uživatelé,</p>
+        <p>
+            byl jsem kontaktován jednou ze škol, jejíž žáci tuto aplikaci používají, že
+            začali mít problémy se systémem úkolů v Bakalářích. Věřím, že není žádný
+            způsob, jak by to mohlo být způsobené touto aplikací, protože tato aplikace
+            zátěž na Bakaláře naopak snižuje tím, že si úkoly pamatuje a nenačítá je
+            opakovaně ze systému.
+        </p>
+        <p>
+            Nicméně i přesto jsem byl požádán, abych (snad jen dočasně) vypnul přístup
+            této aplikace do Bakalářů.
+        </p>
+        <p style="font-weight: bold">Co to pro vás znamená?</p>
+        <p>
+            Pokud jste zůstali přihlášeni, tuto aplikaci můžete nadále využívat, jen
+            nebude fungovat import nových úkolů.
+            <br/>
+            Pokud ne, bez přístupu k Bakalářům nemůžu ověrovat vaše hesla, což znamená
+            že se nebudete moct přihlásit. Vaše uložené stavy úkolů budou zachovány a
+            věřím, že brzy se k nim opět dostanete.
+        </p>
+        <p>Děkuji za pochopení</p>
+    </div>
+{% endif %}
 <main>
     {% block body %}
     {% endblock %}

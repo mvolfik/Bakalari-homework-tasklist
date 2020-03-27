@@ -33,6 +33,9 @@ def find_attachments(ukol: ElementTree, base_url: str):
 
 # --- Actual tasks
 def fetch_new_homework(user_id):
+    if a.config["PAUSE_REQUESTS"]:
+        return 0
+
     u: User = User.query.get(user_id)
     known = [hw.baka_id for hw in Homework.query.filter_by(user_id=u.id).all()]
     req = requests.get(u.url, params={"hx": u.token, "pm": "ukoly"})
@@ -53,6 +56,9 @@ def fetch_new_homework(user_id):
 
 
 def first_import(undone_since, url, token, **user_kwargs):
+    if a.config["PAUSE_REQUESTS"]:
+        return None
+
     req = requests.get(url, params={"hx": token, "pm": "ukoly"})
     root = ElementTree.fromstring(req.content.decode("utf-8"))[0]
 

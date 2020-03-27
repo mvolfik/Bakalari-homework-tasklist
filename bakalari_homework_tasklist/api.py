@@ -26,6 +26,8 @@ def load_data():
 @login_required
 def start_import():
     try:
+        if current_app.config["PAUSE_REQUESTS"]:
+            return jsonify(ok=False, reason=5)
         job = current_app.task_queue.enqueue(
             "bakalari_homework_tasklist.worker_tasks.fetch_new_homework",
             current_user.id,
@@ -38,6 +40,9 @@ def start_import():
 @bp.route("/first-import", methods=("POST",))
 def first_import():
     try:
+        if current_app.config["PAUSE_REQUESTS"]:
+            return jsonify(ok=False, reason=5)
+
         f = FirstImportForm()
         if f.validate():
             job = current_app.task_queue.enqueue(

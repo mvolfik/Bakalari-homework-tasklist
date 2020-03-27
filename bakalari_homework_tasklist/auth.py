@@ -38,7 +38,9 @@ login_manager.login_view = "auth.login"
 @login_manager.user_loader
 def load_user(user_id):
     u = User.query.get(user_id)
-    if u is not None and u.token_date == date.today():
+    if u is not None and (
+        current_app.config["PAUSE_REQUESTS"] or u.token_date == date.today()
+    ):
         return u
     else:
         return None
@@ -63,6 +65,12 @@ def login():
 
     f = LoginForm()
     if f.validate_on_submit():
+        if current_app.config["PAUSE_REQUESTS"]:
+            flash(
+                "Nelze ověřit heslo, protože požadavky na servery Bakalářů jsou pozastavené",
+                FlashColor.ERROR_RED,
+            )
+            return redirect(url_for("home"), 303)
 
         # --- validate url
         url = process_url(f.url.data)
@@ -170,9 +178,12 @@ def first_import():
 
 @bp.route("/first-login")
 def do_first_login():
-    login_user(
-        User.query.get(
-            current_app.task_queue.fetch_job(session.pop("login_job_id")).result
-        )
-    )
-    return redirect(url_for("core.list_homeworks"))
+    res = current_app.task_queue.fetch_job(session.pop("login_job_id")).result
+    if res is not None:
+        user = User.query.get(res)
+        if user is not None:
+            login_user(user)
+            return redirect(url_for("core.list_homeworks"))
+
+    flash("Něco se nepovedlo. Zkuste to prosím znovu", FlashColor.ERROR_RED)
+    return redirect(url_for("auth.login"))

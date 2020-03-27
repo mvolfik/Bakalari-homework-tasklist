@@ -327,9 +327,13 @@
             $.post(
                 "{{ url_for("api.start_import") }}",
                 function (d) {
-                    reloadinterval = setInterval(check_result, 800);
-                    job_id = d["job_id"];
-                    modal_content.html("<i class='fas fa-spinner fa-spin'></i> Import byl zahájen. Nové úkoly budou dostupné za několik vteřin");
+                    if (d["ok"]) {
+                        reloadinterval = setInterval(check_result, 800);
+                        job_id = d["job_id"];
+                        modal_content.html("<i class='fas fa-spinner fa-spin'></i> Import byl zahájen. Nové úkoly budou dostupné za několik vteřin");
+                    } else if (d["reason"] === 5) {
+                        modal_content.html("<i class='fas fa-times'></i> Nelze importovat, požadavky na Bakaláře jsou vypnuté");
+                    }
                     close_modal.show();
                 });
         });
