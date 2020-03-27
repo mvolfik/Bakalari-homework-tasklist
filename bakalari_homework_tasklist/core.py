@@ -21,7 +21,7 @@ bp = Blueprint("core", __name__)
 class ContactForm(FlaskForm):
     is_error = BooleanField("Informuji o chybě v aplikaci")
     email = EmailField(
-        "Můj e-mail pro odpověd (volitelný)",
+        "Tvůj e-mail pro odpověd (volitelný)",
         validators=[
             Optional(),
             Email("Do pole e-mail nezadávejte nic, nebo zadejte platný e-mail"),
