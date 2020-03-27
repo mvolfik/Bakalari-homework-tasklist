@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: Hlášení o chybě
 about: Nahlásit chybu v aplikaci
 title: ''
 labels: bug
