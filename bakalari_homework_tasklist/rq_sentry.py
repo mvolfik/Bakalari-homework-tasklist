@@ -1,12 +1,18 @@
 import os
 
-import sentry_sdk
-from sentry_sdk.integrations.redis import RedisIntegration
-from sentry_sdk.integrations.rq import RqIntegration
+dsn = os.environ.get("SENTRY_DSN", None)
+if dsn is not None:
+    import sentry_sdk
+    from sentry_sdk.integrations.redis import RedisIntegration
+    from sentry_sdk.integrations.rq import RqIntegration
 
-sentry_sdk.init(
-    dsn=os.environ["SENTRY_DSN"], integrations=[RqIntegration(), RedisIntegration()]
-)
+    sentry_sdk.init(dsn=dsn, integrations=[RqIntegration(), RedisIntegration()])
+elif (
+    os.environ.get("FLASK_ENV", "") != "development" and "FLASK_DEBUG" not in os.environ
+):
+    import warnings
+
+    warnings.warn(Warning("Sentry is not active"))
 
 # TODO: Once I manage to start catching errors from the task themselfves, add this:
 # def add_user_info(event, hint):

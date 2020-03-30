@@ -11,6 +11,23 @@
 {% endblock %}
 {% block body %}
     <h1>Kontakt</h1>
+    <p>
+        Uvítám hlášení o chybách, návrhy na vylepšení i jakoukoliv jinou zpětnou vazbu
+        ohledně aplikace.
+    </p>
+    <p>
+        Preferuji transparentní komunikaci. Proto je tedy na Telegramu vytvořený kanál
+        <a href="https://t.me/bakatasklist" target="_blank">@bakatasklist</a> a k němu
+        připojená diskuzní skupina. Pro hlášení chyb používejte prosím pokud možno
+        <a href="https://github.com/mvolfik/Bakalari-homework-tasklist/issues"
+           target="_blank">GitHub Issues</a>
+    </p>
+    <p>
+        Jinak samozřejmě také existuje můj e-mail
+        (<a href="mailto:mat.volfik@gmail.com" target="_blank">mat.volfik@gmail.com</a>)
+        a klasické <b>zlo</b> v podobě kontaktního formuláře:
+    </p>
+    <hr/>
     <form method="POST">
         {{ form.csrf_token }}
         <p>{{ form.email.label }}: {{ form.email }}</p>
@@ -18,11 +35,4 @@
         <div>{{ form.text.label }}: {{ form.text }}</div>
         <input type="submit" value="Odeslat"/>
     </form>
-    <p>
-        Nevyhovuje kontaktní formulář? Použijte e-mail
-        (<a href="mailto:mat.volfik@gmail.com" target="_blank">mat.volfik@gmail.com</a>)
-        nebo
-        <a href="https://github.com/mvolfik/Bakalari-homework-tasklist/issues"
-           target="_blank">GitHub Issues</a>
-    </p>
 {% endblock %}

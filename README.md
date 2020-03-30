@@ -20,10 +20,17 @@ Tuto aplikaci jsem vytvořil v březnu 2020 během přerušení výuky na škol�
 virového onemocnění COVID-19, způsobeného virem SARS-CoV-2 (&ldquo;wuchanský
 koronavirus&rdquo;).
 
-Pokud mi chcete nahlásit chybu, navrhnout vylepšení nebo mě kontaktovat z jiného důvodu,
-přejděte na stránku [Kontakt](https://bakalari-homework-tasklist.herokuapp.com).
-
 Zdrojové kódy jsou k dispozici v tomto repozitáři.
+
+## Kontakt
+
+Uvítám hlášení o chybách, návrhy na vylepšení i jakoukoliv jinou zpětnou vazbu ohledně
+aplikace.
+
+Preferuji komunikaci přes Telegram. Je tam tedy založený kanál
+[@bakatasklist](https://t.me/bakatasklist) a k němu připojená diskuzní skupina. Další
+způsoby kontaktu jsou uvedené na stránce
+[Kontakt](https://bakalari-homework-tasklist.herokuapp.com/contact).
 
 # Disclaimer
 
