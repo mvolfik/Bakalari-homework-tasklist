@@ -27,7 +27,8 @@ def create_app(config=None, *, keep_default=True, **kwargs):
             REDIS_URL=os.environ["REDIS_URL"],
             SQLALCHEMY_ECHO=False,
             SECRET_KEY=os.environ["SECRET_KEY"],
-            PAUSE_REQUESTS=bool(os.environ.get("PAUSE_REQUESTS", False)),
+            PAUSE_REQUESTS=True,
+            SERVICE_MESSAGE=os.environ.get("SERVICE_MESSAGE", None),
         )
     if config is not None:
         app.config.from_mapping(config)
