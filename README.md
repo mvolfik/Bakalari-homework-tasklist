@@ -1,10 +1,6 @@
-Note 2: _The app doesn't work now, as the APIv1 for Bakaláři this app used was shut down. [homework-fm.l](https://github.com/mvolfik/homework-fml) is in progress._
+EN: _This app's lifetime is over. The Bakaláři APIv1 was phased out so it doesn't work. [homework-f.ml](https://github.com/mvolfik/homework-fml) was supposed to be a more generally focused successor, supporting various services like Bakaláři, Google Classroom or Moodle. However, I the main feature this app offered over Bakaláři was included there and I didn't have enough motivation to finish it. And the lockdown luckily seems to be almost over._
 
----
-
-Note - EN: _Development is currently stalled (mostly because I'm lazy). I'm planning to do a second iteration of this project, focused more generally – you create an account, and then you can import homework from various services like Bakaláři, Google Classroom or Moodle. ETA September_
-
-CS: _Vývoj je aktuálně pozastavený (převážně z důvodu mojí lenosti). Plánuji vytvořit druhou verzi tohoto projektu, zaměřenou více obecně – vytvoříte si účet, a poté můžete importovat úkoly z různých zdrojů, například Bakalářů, Google Classroom, Moodle… Aplikace bych chtěl mít hotovou před začátkem nového školního roku._
+CS: _Životnost této aplikace skončila. Bakaláři APIv1 bylo ukončeno, takže Bakatasklist nefunguje. [homework-fm.l](https://github.com/mvolfik/homework-fml) byl plánovaný jako náhrada, která by podporovala úkoly z více zdrojů, například Bakalářů, Google Classroom nebo Moodle. Nicméně zaškrtávání úkolů je nyní přímo v Bakalářích a já neměl dostatek motivace pro pokračování tohoto projektu. A všeobecná karanténa naštěstí už končí._
 
 ---
 
